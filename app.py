@@ -65,10 +65,15 @@ def analyze_and_signal(pair_label, symbol, exchange):
     except Exception as e:
         print(f"❌ Error analyzing {pair_label}: {e}")
 
+import random
+
 def run_all():
-    for pair_label, exchange in pairs_config.items():
-        analyze_and_signal(pair_label, pair_label, exchange)
-        time.sleep(10)
+    pairs = list(pairs_config.items())
+    random.shuffle(pairs)  # Randomize order
+
+    for pair_label, exchange in pairs:
+        analyze_and_signal(pair_label, exchange)
+        time.sleep(random.randint(25, 40))  # Delay between 25–40 seconds
 
 def run_test():
     analyze_and_signal("XAUUSD", "XAUUSD", "OANDA")
