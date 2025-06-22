@@ -1,0 +1,4 @@
+tradingview_ta
+requests
+pytz
+python-dotenv
