@@ -23,7 +23,7 @@ pairs_config = {
 }
 
 def get_handler(pair, exchange):
-    symbol = "GOLD" if pair == "XAUUSD" else pair
+    symbol = "XAUUSD" if pair == "XAUUSD" else pair
     return TA_Handler(
         symbol=symbol,
         exchange=exchange,
