@@ -11,6 +11,7 @@ WEBHOOK_URL = os.getenv("WEBHOOK_URL")
 TIMEZONE = os.getenv("TIMEZONE", "Europe/Amsterdam")
 
 pairs_config = {
+pairs_config = {
     "EURUSD": "OANDA",
     "GBPUSD": "OANDA",
     "USDJPY": "OANDA",
@@ -18,7 +19,7 @@ pairs_config = {
     "AUDUSD": "OANDA",
     "USDCAD": "OANDA",
     "NZDUSD": "OANDA",
-    "XAUUSD": "OANDA",  # symbol will be GOLD
+    "XAUUSD": "FOREXCOM"  # ← Fixed exchange for gold
 }
 
 def get_handler(pair, exchange):
