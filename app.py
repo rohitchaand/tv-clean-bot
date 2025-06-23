@@ -1,12 +1,15 @@
-import os, time
+import os
+import time
 import requests
 from datetime import datetime
 from tradingview_ta import TA_Handler, Interval
 import pytz
 
 WEBHOOK_URL = os.getenv("WEBHOOK_URL")
+TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
 TIMEZONE = os.getenv("TIMEZONE", "Europe/Amsterdam")
 
+# Pairs to analyze — excluding XAUUSD for now
 pairs_config = {
     "EURUSD": "OANDA",
     "GBPUSD": "OANDA",
@@ -14,22 +17,21 @@ pairs_config = {
     "USDCHF": "OANDA",
     "AUDUSD": "OANDA",
     "USDCAD": "OANDA",
-    "NZDUSD": "OANDA"
-    # 🔥 XAUUSD is excluded for now
+    "NZDUSD": "OANDA",
 }
 
-def get_handler(symbol, exchange):
+def get_handler(pair, exchange):
     return TA_Handler(
-        symbol=symbol,
+        symbol=pair,
         exchange=exchange,
         screener="forex",
         interval=Interval.INTERVAL_15_MINUTES
     )
 
-def analyze_and_signal(symbol, exchange):
+def analyze_and_signal(pair, exchange):
     try:
-        print(f"📊 Analyzing {symbol} on {exchange}")
-        handler = get_handler(symbol, exchange)
+        print(f"📊 Analyzing {pair} on {exchange}")
+        handler = get_handler(pair, exchange)
         analysis = handler.get_analysis()
         summary = analysis.summary
         action = None
@@ -45,7 +47,7 @@ def analyze_and_signal(symbol, exchange):
             tp = round(entry * (1.010 if action == "BUY" else 0.990), 5)
 
             message = (
-                f"📢 {symbol} {action} SIGNAL\n\n"
+                f"📢 {pair} {action} SIGNAL\n\n"
                 f"🟢 Entry: {entry}\n"
                 f"🛡️ SL: {sl}\n"
                 f"🎯 TP: {tp}\n"
@@ -53,26 +55,26 @@ def analyze_and_signal(symbol, exchange):
                 f"🕒 {datetime.now(pytz.timezone(TIMEZONE)).strftime('%Y-%m-%d %H:%M')}\n"
                 f"🚀 Auto from Rockstar Bot"
             )
-            TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
 
-response = requests.post(WEBHOOK_URL, json={
-    "chat_id": TELEGRAM_CHAT_ID,
-    "text": message
-})
+            response = requests.post(WEBHOOK_URL, json={
+                "chat_id": TELEGRAM_CHAT_ID,
+                "text": message
+            })
+
             if response.status_code == 200:
-                print(f"✅ Signal sent for {symbol}")
+                print(f"✅ Signal sent for {pair}")
             else:
-                print(f"⚠️ Failed to send signal for {symbol}: {response.status_code} - {response.text}")
+                print(f"⚠️ Telegram error: {response.status_code} - {response.text}")
         else:
-            print(f"ℹ️ No valid signal for {symbol}")
+            print(f"ℹ️ No valid signal for {pair}")
 
     except Exception as e:
-        print(f"❌ Error analyzing {symbol}: {e}")
+        print(f"❌ Error analyzing {pair}: {e}")
 
 def run_all():
-    for symbol, exchange in pairs_config.items():
-        analyze_and_signal(symbol, exchange)
-        time.sleep(15)  # Slight delay to prevent 429 rate-limiting
+    for pair, exchange in pairs_config.items():
+        analyze_and_signal(pair, exchange)
+        time.sleep(10)
 
 if __name__ == "__main__":
     while True:
