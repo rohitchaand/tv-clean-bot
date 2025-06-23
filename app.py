@@ -3,9 +3,6 @@ import requests
 from datetime import datetime
 from tradingview_ta import TA_Handler, Interval
 import pytz
-from dotenv import load_dotenv
-
-load_dotenv()
 
 WEBHOOK_URL = os.getenv("WEBHOOK_URL")
 TIMEZONE = os.getenv("TIMEZONE", "Europe/Amsterdam")
@@ -17,11 +14,11 @@ pairs_config = {
     "USDCHF": "OANDA",
     "AUDUSD": "OANDA",
     "USDCAD": "OANDA",
-    "NZDUSD": "OANDA",
+    "NZDUSD": "OANDA"
+    # 🔥 XAUUSD is excluded for now
 }
 
-def get_handler(pair, exchange):
-    symbol = "XAUUSD" if pair == "XAUUSD" else pair
+def get_handler(symbol, exchange):
     return TA_Handler(
         symbol=symbol,
         exchange=exchange,
@@ -29,9 +26,9 @@ def get_handler(pair, exchange):
         interval=Interval.INTERVAL_15_MINUTES
     )
 
-def analyze_and_signal(pair_label, symbol, exchange):
+def analyze_and_signal(symbol, exchange):
     try:
-        print(f"📊 Analyzing {pair_label} on {exchange}")
+        print(f"📊 Analyzing {symbol} on {exchange}")
         handler = get_handler(symbol, exchange)
         analysis = handler.get_analysis()
         summary = analysis.summary
@@ -48,19 +45,31 @@ def analyze_and_signal(pair_label, symbol, exchange):
             tp = round(entry * (1.010 if action == "BUY" else 0.990), 5)
 
             message = (
-                f"📢 {pair_label} {action} SIGNAL\n\n"
+                f"📢 {symbol} {action} SIGNAL\n\n"
                 f"🟢 Entry: {entry}\n"
-                f"🎯 TP: {tp}\n"
                 f"🛡️ SL: {sl}\n"
+                f"🎯 TP: {tp}\n"
                 f"⏰ 15m TF\n"
                 f"🕒 {datetime.now(pytz.timezone(TIMEZONE)).strftime('%Y-%m-%d %H:%M')}\n"
                 f"🚀 Auto from Rockstar Bot"
             )
             response = requests.post(WEBHOOK_URL, json={"text": message})
-            print(f"✅ Signal sent for {pair_label}" if response.status_code == 200 else f"⚠️ Failed: {response.text}")
+            if response.status_code == 200:
+                print(f"✅ Signal sent for {symbol}")
+            else:
+                print(f"⚠️ Failed to send signal for {symbol}: {response.status_code} - {response.text}")
         else:
-            print(f"ℹ️ No valid signal for {pair_label}")
-    except Exception as e:
-        print(f"❌ Error analyzing {pair_label}: {e}")
+            print(f"ℹ️ No valid signal for {symbol}")
 
-import random
+    except Exception as e:
+        print(f"❌ Error analyzing {symbol}: {e}")
+
+def run_all():
+    for symbol, exchange in pairs_config.items():
+        analyze_and_signal(symbol, exchange)
+        time.sleep(15)  # Slight delay to prevent 429 rate-limiting
+
+if __name__ == "__main__":
+    while True:
+        run_all()
+        time.sleep(300)
