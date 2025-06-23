@@ -18,7 +18,6 @@ pairs_config = {
     "AUDUSD": "OANDA",
     "USDCAD": "OANDA",
     "NZDUSD": "OANDA",
-    "XAUUSD": "FOREXCOM"  # ← Fixed exchange for gold
 }
 
 def get_handler(pair, exchange):
