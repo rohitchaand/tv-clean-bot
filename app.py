@@ -64,23 +64,3 @@ def analyze_and_signal(pair_label, symbol, exchange):
         print(f"❌ Error analyzing {pair_label}: {e}")
 
 import random
-
-def run_all():
-    pairs = list(pairs_config.items())
-    random.shuffle(pairs)  # Randomize order
-
-    for pair_label, exchange in pairs:
-        analyze_and_signal(pair_label, exchange)
-        time.sleep(random.randint(25, 40))  # Delay between 25–40 seconds
-
-def run_test():
-    analyze_and_signal("XAUUSD", "XAUUSD", "OANDA")
-    print("✅ Test complete.")
-
-if __name__ == "__main__":
-    if os.getenv("SEND_TEST", "false").lower() == "true":
-        run_test()
-    else:
-        while True:
-            run_all()
-            time.sleep(300)
