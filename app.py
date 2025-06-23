@@ -11,7 +11,6 @@ WEBHOOK_URL = os.getenv("WEBHOOK_URL")
 TIMEZONE = os.getenv("TIMEZONE", "Europe/Amsterdam")
 
 pairs_config = {
-pairs_config = {
     "EURUSD": "OANDA",
     "GBPUSD": "OANDA",
     "USDJPY": "OANDA",
