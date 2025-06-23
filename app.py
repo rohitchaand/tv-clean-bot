@@ -77,6 +77,13 @@ def run_all():
         time.sleep(10)
 
 if __name__ == "__main__":
-    while True:
-        run_all()
-        time.sleep(300)
+    try:
+        print("🚀 Bot started at", datetime.now(pytz.timezone(TIMEZONE)).strftime('%Y-%m-%d %H:%M:%S'))
+        if os.getenv("SEND_TEST") == "true":
+            run_test()
+        else:
+            while True:
+                run_all()
+                time.sleep(300)
+    except Exception as e:
+        print("❌ Critical error on startup:", e)
