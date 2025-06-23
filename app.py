@@ -53,8 +53,10 @@ def analyze_and_signal(symbol, exchange):
                 f"🕒 {datetime.now(pytz.timezone(TIMEZONE)).strftime('%Y-%m-%d %H:%M')}\n"
                 f"🚀 Auto from Rockstar Bot"
             )
-            response = requests.post(WEBHOOK_URL, json={
-    "chat_id": "-1002703416975",
+            TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
+
+response = requests.post(WEBHOOK_URL, json={
+    "chat_id": TELEGRAM_CHAT_ID,
     "text": message
 })
             if response.status_code == 200:
